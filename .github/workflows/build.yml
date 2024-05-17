@@ -69,15 +69,6 @@ jobs:
     runs-on: ubuntu-latest
     steps:
     - uses: actions/checkout@v1
-    - name: Build arm64 (Default features)
-      uses: actions-rs/cargo@v1
-      with:
-        working-directory: selene
-        use-cross: true
-        command: build
-        args: --locked --release --target aarch64-unknown-linux-gnu
-    - name: Move arm64 binary
-      run: mv target/aarch64-unknown-linux-gnu/release/selene target/release/selene_aarch64
     - name: Build (Default features)
       run: |
         cd selene
@@ -87,24 +78,22 @@ jobs:
       with:
         name: selene-linux
         path: ./target/release/selene
-    - name: Upload selene arm64
-      uses: actions/upload-artifact@v1
-      with:
-        name: selene-linux-aarch64
-        path: ./target/release/selene_aarch64
-  build_linux_light:
-    runs-on: ubuntu-latest
-    steps:
-    - uses: actions/checkout@v1
-    - name: Build arm64 (Lightweight)
+    - name: Build arm64 (Default features)
       uses: actions-rs/cargo@v1
       with:
         working-directory: selene
         use-cross: true
         command: build
-        args: --locked --release --verbose --no-default-features --target aarch64-unknown-linux-gnu
-    - name: Move arm64 binary
-      run: mv target/aarch64-unknown-linux-gnu/release/selene target/release/selene_aarch64
+        args: --locked --release --target aarch64-unknown-linux-gnu
+    - name: Upload selene arm64
+      uses: actions/upload-artifact@v1
+      with:
+        name: selene-linux-aarch64
+        path: ./target/aarch64-unknown-linux-gnu/release/selene
+  build_linux_light:
+    runs-on: ubuntu-latest
+    steps:
+    - uses: actions/checkout@v1
     - name: Build (Lightweight)
       run: |
         cd selene
@@ -114,11 +103,18 @@ jobs:
       with:
         name: selene-light-linux
         path: ./target/release/selene
+    - name: Build arm64 (Lightweight)
+      uses: actions-rs/cargo@v1
+      with:
+        working-directory: selene
+        use-cross: true
+        command: build
+        args: --locked --release --verbose --no-default-features --target aarch64-unknown-linux-gnu
     - name: Upload selene-light arm64
       uses: actions/upload-artifact@v1
       with:
         name: selene-light-linux-aarch64
-        path: ./target/release/selene_aarch64
+        path: ./target/aarch64-unknown-linux-gnu/release/selene
   release:
     runs-on: ubuntu-latest
     needs: ['build_windows_light', 'build_windows', 'build_mac', 'build_mac_light', 'build_linux', 'build_linux_light']
